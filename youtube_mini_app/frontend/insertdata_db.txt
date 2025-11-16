@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS videos (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  filename TEXT NOT NULL
+);
+
+INSERT INTO videos (title, filename) VALUES
+  ('Cute Cat Compilation', 'cat.mp4'),
+  ('Intro to Docker', 'docker_intro.mp4');
+SQL

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mini YouTube</title>
+  <style>body{font-family:Arial;padding:20px}</style>
+</head>
+<body>
+  <h1>Mini YouTube</h1>
+  <p>Click to load videos</p>
+  <button onclick="load()">Load Videos</button>
+  <div id="status"></div>
+  <ul id="list"></ul>
+
+<script>
+async function load() {
+  const status = document.getElementById('status');
+  status.textContent = 'Loading...';
+  try {
+    const res = await fetch('http://3.237.19.146:5000/videos');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const videos = await res.json();
+    document.getElementById('list').innerHTML =
+      videos.map(v => `<li><strong>${v.title}</strong> — ${v.filename} (id:${v.id})</li>`).join('');
+    status.textContent = 'Loaded ' + videos.length + ' videos.';
+  } catch (err) {
+    status.textContent = 'Error: ' + err;
+    console.error('Fetch error:', err);
+  }
+}
+</script>
+</body>
+</html>

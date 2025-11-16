@@ -1,0 +1,89 @@
+# 1️⃣ Install Docker and start service
+yum install docker -y
+systemctl start docker
+
+# 2️⃣ Verify Docker installation
+docker images
+docker ps
+
+# 3️⃣ Create project folders
+mkdir youtube_clone
+cd youtube_clone
+mkdir backend frontend pgdata
+
+# 4️⃣ Backend setup
+cd backend
+# Add your Flask app code
+vim app.py
+
+# Create Dockerfile for backend
+vim Dockerfile
+# Make sure it installs Python, pip, dependencies, and runs app.py
+
+cd ..
+
+# 5️⃣ Frontend setup
+cd frontend
+# Add your frontend HTML
+vim index.html
+cd ..
+
+# 6️⃣ Create Docker network
+docker network create youtube_net
+
+# 7️⃣ Run PostgreSQL container
+docker run -dit --name=youtube_db \
+  --network youtube_net \
+  -e POSTGRES_PASSWORD=passs123 \
+  -e POSTGRES_DB=youtube \
+  -v /root/pgdata:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  postgres:15
+
+# 8️⃣ Verify PostgreSQL container
+docker ps -a
+docker logs youtube_db
+
+# 9️⃣ Create videos table and insert sample data
+docker exec -i youtube_db psql -U postgres -d youtube <<'SQL'
+CREATE TABLE IF NOT EXISTS videos (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  filename TEXT NOT NULL
+);
+
+INSERT INTO videos (title, filename) VALUES
+  ('Cute Cat Compilation', 'cat.mp4'),
+  ('Intro to Docker', 'docker_intro.mp4');
+SQL
+
+# 10️⃣ Verify inserted data
+docker exec -i youtube_db psql -U postgres -d youtube -c "SELECT * FROM videos"
+
+# 11️⃣ Build backend Docker image
+docker build -t youtube_backend ./backend/
+
+# 12️⃣ Run backend container
+docker run -dit --name backend \
+  --network youtube_net \
+  -p 5000:5000 \
+  -e DB_HOST=youtube_db \
+  -e DB_USER=postgres \
+  -e DB_PASSWORD=passs123 \
+  -e DB_NAME=youtube \
+  youtube_backend
+
+# 13️⃣ Run frontend container (nginx)
+docker run -dit --name frontend \
+  --network youtube_net \
+  -p 8080:80 \
+  -v /root/frontend:/usr/share/nginx/html:ro \
+  nginx
+
+# 14️⃣ Verify containers
+docker ps
+docker logs backend --tail 50
+docker logs frontend --tail 50
+
+# 15️⃣ Test backend API
+curl http://<YOUR_SERVER_IP>:5000/videos
