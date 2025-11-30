@@ -13,7 +13,9 @@ This is a simple Python command-line application that allows you to:
 4. Exit the console  
 
 ## Installation
+
 mkdir secret_messenger
+
 cd secret_messenger
 ```
 
@@ -30,4 +32,5 @@ No external libraries required. Works with standard Python 3.
 
 ## File Storage
 - Encoded messages are stored in `data/message.txt`
+
 
